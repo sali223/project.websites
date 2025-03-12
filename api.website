@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #34495e;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a:hover {
+            color: var(--light);
+        }
+        
+        .api-key-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .api-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .api-form input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-img {
+            height: 200px;
+            background-color: #f1f1f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .product-img img {
+            max-width: 100%;
+            max-height: 180px;
+        }
+        
+        .product-details {
+            padding: 20px;
+        }
+        
+        .product-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .product-category {
+            color: var(--primary);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .product-price {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: var(--dark);
+        }
+        
+        .message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .message.error {
+            background-color: #ffecee;
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .message.success {
+            background-color: #eaffef;
+            color: var(--secondary);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .message.info {
+            background-color: #e6f7ff;
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .favorites-section {
+            margin-top: 30px;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .api-form {
+                flex-direction: column;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Product Catalog</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-home">Home</a></li>
+                    <li><a href="#" id="nav-favorites">Favorites</a></li>
+                    <li><a href="#" id="nav-add-product">Add Product</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="api-key-section">
+            <h2>API Configuration</h2>
+            <p>Enter your API key to fetch product data</p>
+            <div class="api-form">
+                <input type="text" id="api-key" placeholder="Enter API Key" value="demo_api_key_12345">
+                <button class="btn" id="save-api-key">Save Key</button>
+                <button class="btn btn-secondary" id="fetch-products">Fetch Products</button>
+            </div>
+            <div id="api-message"></div>
+        </div>
+        
+        <div id="main-content">
+            <div id="products-section">
+                <h2>Products</h2>
+                <div id="products-container" class="products-grid">
+                    <div class="loading">Loading products...</div>
+                </div>
+            </div>
+            
+            <div id="favorites-section" class="favorites-section" style="display: none;">
+                <h2>Your Favorite Products</h2>
+                <div id="favorites-container" class="products-grid">
+                    <p>No favorites yet. Click the heart icon on products to add them here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Product</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Description</label>
+                    <textarea id="product-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price ($)</label>
+                    <input type="number" id="product-price" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-category">Category</label>
+                    <input type="text" id="product-category">
+                </div>
+                <button type="submit" class="btn btn-secondary">Add Product</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Product Catalog. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Database setup using IndexedDB for client-side storage
+        let db;
+        const DB_NAME = 'productCatalogDB';
+        const DB_VERSION = 1;
+        
+        // Initialize the database
+        function initDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = event => {
+                    showMessage('error', 'Failed to open database. Please try again or check your browser settings.');
+                    reject('Database error');
+                };
+                
+                request.onsuccess = event => {
+                    db = event.target.result;
+                    console.log('Database opened successfully');
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = event => {
+                    const db = event.target.result;
+                    
+                    // Create object stores (tables)
+                    if (!db.objectStoreNames.contains('apiKeys')) {
+                        db.createObjectStore('apiKeys', { keyPath: 'id' });
+                    }
+                    
+                    if (!db.objectStoreNames.contains('products')) {
+                        const productStore = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
+                        productStore.createIndex('category', 'category', { unique: false });
+                    }
+                    
+                    if (!db.objectStoreNames.contains('favorites')) {
+                        db.createObjectStore('favorites', { keyPath: 'id' });
+                    }
+                    
+                    console.log('Database setup complete');
+                };
+            });
+        }
+        
+        // Save API key to database
+        function saveApiKey(apiKey) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['apiKeys'], 'readwrite');
+                const store = transaction.objectStore('apiKeys');
+                
+                const request = store.put({ id: 'current', key: apiKey });
+                
+                request.onsuccess = () => {
+                    resolve(true);
+                };
+                
+                request.onerror = () => {
+                    reject('Error saving API key');
+                };
+            });
+        }
+        
+        // Get saved API key
+        function getApiKey() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['apiKeys'], 'readonly');
+                const store = transaction.objectStore('apiKeys');
+                
+                const request = store.get('current');
+                
+                request.onsuccess = () => {
+                    if (request.result) {
+                        resolve(request.result.key);
+                    } else {
+                        resolve(null);
+                    }
+                };
+                
+                request.onerror = () => {
+                    reject('Error retrieving API key');
+                };
+            });
+        }
+        
+        // Fetch products from API
+        async function fetchProducts() {
+            try {
+                const apiKey = await getApiKey();
+                if (!apiKey) {
+                    showMessage('error', 'Please save an API key first.');
+                    return;
+                }
+                
+                showMessage('info', 'Fetching products...');
+                
+                // In a real application, you would fetch from an actual API
+                // For demo purposes, we'll simulate an API response
+                setTimeout(() => {
+                    const mockApiResponse = {
+                        success: true,
+                        products: [
+                            { id: 1, name: 'Smartphone XL', description: 'Latest smartphone with advanced features', price: 799.99, category: 'Electronics', image: '/api/placeholder/280/200' },
+                            { id: 2, name: 'Wireless Headphones', description: 'Noise cancelling wireless headphones', price: 149.99, category: 'Electronics', image: '/api/placeholder/280/200' },
+                            { id: 3, name: 'Running Shoes', description: 'Lightweight shoes for professional runners', price: 89.99, category: 'Sports', image: '/api/placeholder/280/200' },
+                            { id: 4, name: 'Coffee Maker', description: 'Automatic coffee maker with timer', price: 59.99, category: 'Home', image: '/api/placeholder/280/200' },
+                            { id: 5, name: 'Backpack', description: 'Waterproof backpack with laptop compartment', price: 49.99, category: 'Accessories', image: '/api/placeholder/280/200' },
+                            { id: 6, name: 'Smart Watch', description: 'Track your fitness and receive notifications', price: 199.99, category: 'Electronics', image: '/api/placeholder/280/200' }
+                        ]
+                    };
+                    
+                    if (mockApiResponse.success) {
+                        // Store products in database
+                        saveProducts(mockApiResponse.products)
+                            .then(() => {
+                                displayProducts(mockApiResponse.products);
+                                showMessage('success', 'Products loaded successfully!');
+                            })
+                            .catch(error => {
+                                showMessage('error', 'Error saving products to local database');
+                            });
+                    } else {
+                        showMessage('error', 'Failed to fetch products from API');
+                    }
+                }, 1500);
+            } catch (error) {
+                showMessage('error', 'Error processing request: ' + error);
+            }
+        }
+        
+        // Save products to database
+        function saveProducts(products) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                
+                // Clear existing products
+                store.clear();
+                
+                let successCount = 0;
+                
+                products.forEach(product => {
+                    const request = store.add(product);
+                    
+                    request.onsuccess = () => {
+                        successCount++;
+                        if (successCount === products.length) {
+                            resolve(true);
+                        }
+                    };
+                    
+                    request.onerror = () => {
+                        reject('Error saving product: ' + product.name);
+                    };
+                });
+            });
+        }
+        
+        // Get all products from database
+        function getProducts() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readonly');
+                const store = transaction.objectStore('products');
+                const request = store.getAll();
+                
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+                
+                request.onerror = () => {
+                    reject('Error retrieving products');
+                };
+            });
+        }
+        
+        // Display products on the page
+        function displayProducts(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p>No products found. Try fetching products from the API.</p>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = createProductCard(product);
+                container.appendChild(productCard);
+            });
+        }
+        
+        // Create a product card element
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.dataset.id = product.id;
+            
+            const isFavorite = checkIfFavorite(product.id);
+            
+            card.innerHTML = `
+                <div class="product-img">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="product-details">
+                    <h3 class="product-title">${product.name}</h3>
+                    <div class="product-category">${product.category}</div>
+                    <div class="product-price">$${product.price.toFixed(2)}</div>
+                    <div class="product-actions">
+                        <button class="btn" onclick="viewProductDetails(${product.id})">View Details</button>
+                        <button class="btn-favorite" onclick="toggleFavorite(${product.id})" data-favorite="${isFavorite}">
+                            ${isFavorite ? '❤️' : '🤍'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Check if product is in favorites
+        function checkIfFavorite(productId) {
+            // This will be implemented with IndexedDB
+            return false;
+        }
+        
+        // Toggle favorite status for a product
+        async function toggleFavorite(productId) {
+            const transaction = db.transaction(['products', 'favorites'], 'readwrite');
+            const productStore = transaction.objectStore('products');
+            const favoritesStore = transaction.objectStore('favorites');
+            
+            try {
+                // Get the product
+                const product = await new Promise((resolve, reject) => {
+                    const request = productStore.get(productId);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject('Product not found');
+                });
+                
+                // Check if already in favorites
+                const existingFav = await new Promise((resolve) => {
+                    const request = favoritesStore.get(productId);
+                    request.onsuccess = () => resolve(request.result);
+                });
+                
+                if (existingFav) {
+                    // Remove from favorites
+                    await new Promise((resolve, reject) => {
+                        const request = favoritesStore.delete(productId);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject('Failed to remove from favorites');
+                    });
+                    
+                    // Update button
+                    const buttons = document.querySelectorAll(`.btn-favorite[onclick="toggleFavorite(${productId})"]`);
+                    buttons.forEach(btn => {
+                        btn.innerHTML = '🤍';
+                        btn.dataset.favorite = 'false';
+                    });
+                    
+                    showMessage('info', `${product.name} removed from favorites`);
+                } else {
+                    // Add to favorites
+                    await new Promise((resolve, reject) => {
+                        const request = favoritesStore.add(product);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject('Failed to add to favorites');
+                    });
+                    
+                    // Update button
+                    const buttons = document.querySelectorAll(`.btn-favorite[onclick="toggleFavorite(${productId})"]`);
+                    buttons.forEach(btn => {
+                        btn.innerHTML = '❤️';
+                        btn.dataset.favorite = 'true';
+                    });
+                    
+                    showMessage('success', `${product.name} added to favorites`);
+                }
+                
+                // If on favorites page, refresh the display
+                if (document.getElementById('favorites-section').style.display !== 'none') {
+                    displayFavorites();
+                }
+                
+            } catch (error) {
+                showMessage('error', error);
+            }
+        }
+        
+        // Display favorites
+        async function displayFavorites() {
+            const container = document.getElementById('favorites-container');
+            container.innerHTML = '';
+            
+            try {
+                const favorites = await new Promise((resolve, reject) => {
+                    const transaction = db.transaction(['favorites'], 'readonly');
+                    const store = transaction.objectStore('favorites');
+                    const request = store.getAll();
+                    
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject('Error retrieving favorites');
+                });
+                
+                if (favorites.length === 0) {
+                    container.innerHTML = '<p>No favorites yet. Click the heart icon on products to add them here.</p>';
+                    return;
+                }
+                
+                favorites.forEach(product => {
+                    const productCard = createProductCard(product);
+                    container.appendChild(productCard);
+                });
+                
+            } catch (error) {
+                showMessage('error', error);
+            }
+        }
+        
+        // Add a new product
+        async function addNewProduct(product) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['products'], 'readwrite');
+                const store = transaction.objectStore('products');
+                
+                // Add image placeholder
+                product.image = '/api/placeholder/280/200';
+                
+                const request = store.add(product);
+                
+                request.onsuccess = () => {
+                    resolve(true);
+                };
+                
+                request.onerror = () => {
+                    reject('Error adding product');
+                };
+            });
+        }
+        
+        // Show message to user
+        function showMessage(type, message) {
+            const messageDiv = document.getElementById('api-message');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 5000);
+        }
+        
+        // Navigation functions
+        function showHome() {
+            document.getElementById('products-section').style.display = 'block';
+            document.getElementById('favorites-section').style.display = 'none';
+            document.getElementById('nav-home').classList.add('active');
+            document.getElementById('nav-favorites').classList.remove('active');
+        }
+        
+        function showFavorites() {
+            document.getElementById('products-section').style.display = 'none';
+            document.getElementById('favorites-section').style.display = 'block';
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-favorites').classList.add('active');
+            
+            displayFavorites();
+        }
+        
+        // Modal functions
+        function openAddProductModal() {
+            document.getElementById('add-product-modal').style.display = 'flex';
+        }
+        
+        function closeAddProductModal() {
+            document.getElementById('add-product-modal').style.display = 'none';
+        }
+        
+        // Initialize the application
+        async function init() {
+            try {
+                await initDatabase();
+                
+                // Load saved API key if exists
+                const savedKey = await getApiKey();
+                if (savedKey) {
+                    document.getElementById('api-key').value = savedKey;
+                }
+                
+                // Load products if available
+                const products = await getProducts();
+                if (products && products.length > 0) {
+                    displayProducts(products);
+                }
+                
+                // Event listeners
+                document.getElementById('save-api-key').addEventListener('click', async () => {
+                    const apiKey = document.getElementById('api-key').value.trim();
+                    if (apiKey) {
+                        await saveApiKey(apiKey);
+                        showMessage('success', 'API key saved successfully!');
+                    } else {
+                        showMessage('error', 'Please enter a valid API key');
+                    }
+                });
+                
+                document.getElementById('fetch-products').addEventListener('click', fetchProducts);
+                document.getElementById('nav-home').addEventListener('click', showHome);
+                document.getElementById('nav-favorites').addEventListener('click', showFavorites);
+                document.getElementById('nav-add-product').addEventListener('click', openAddProductModal);
+                
+                // Modal close button
+                document.querySelector('.close-modal').addEventListener('click', closeAddProductModal);
+                
+                // Click outside modal to close
+                window.addEventListener('click', event => {
+                    if (event.target === document.getElementById('add-product-modal')) {
+                        closeAddProductModal();
+                    }
+                });
+                
+                // Add product form submission
+                document.getElementById('add-product-form').addEventListener('submit', async event => {
+                    event.preventDefault();
+                    
+                    const newProduct = {
+                        name: document.getElementById('product-name').value,
+                        description: document.getElementById('product-description').value,
+                        price: parseFloat(document.getElementById('product-price').value),
+                        category: document.getElementById('product-category').value
+                    };
+                    
+                    try {
+                        await addNewProduct(newProduct);
+                        showMessage('success', 'Product added successfully!');
+                        closeAddProductModal();
+                        
+                        // Refresh products display
+                        const products = await getProducts();
+                        displayProducts(products);
+                        
+                        // Reset form
+                        document.getElementById('add-product-form').reset();
+                    } catch (error) {
+                        showMessage('error', error);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showMessage('error', 'Failed to initialize the application. Please refresh the page.');
+            }
+        }
+        
+        // Start the application
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
